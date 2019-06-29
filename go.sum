@@ -10,13 +10,12 @@ github.com/go-audio/wav v0.0.0-20181013172942-de841e69b884 h1:2TaXIaVA4ff/MHHezO
 github.com/go-audio/wav v0.0.0-20181013172942-de841e69b884/go.mod h1:UiqzUyfX0zs3pJ/DPyvS5v8sN6s5bXPUDDIVA5v8dks=
 github.com/icza/bitio v0.0.0-20180221120200-b25b30b42508 h1:2LdkN1icT8cEFyB95fUbPE0TmQL9ZOjUv9MNJ1kg3XE=
 github.com/icza/bitio v0.0.0-20180221120200-b25b30b42508/go.mod h1:1+iKpsBoI5fsqBTrjxjM81vidVQcxXCmDrM9vc6EU2w=
+github.com/icza/mighty v0.0.0-20180919140131-cfd07d671de6 h1:8UsGZ2rr2ksmEru6lToqnXgA8Mz1DP11X4zSJ159C3k=
 github.com/icza/mighty v0.0.0-20180919140131-cfd07d671de6/go.mod h1:xQig96I1VNBDIWGCdTt54nHt6EeI639SmHycLYL7FkA=
 github.com/mattetti/audio v0.0.0-20180912171649-01576cde1f21 h1:Hc1iKlyxNHp3CV59G2E/qabUkHvEwOIJxDK0CJ7CRjA=
 github.com/mattetti/audio v0.0.0-20180912171649-01576cde1f21/go.mod h1:LlQmBGkOuV/SKzEDXBPKauvN2UqCgzXO2XjecTGj40s=
 github.com/mewkiz/flac v1.0.5-0.20190222151344-f296b7aa7930 h1:f2MmBr0MM68hWzpJTjMQ5tTFemHH6bsnTJ907qqySg4=
 github.com/mewkiz/flac v1.0.5-0.20190222151344-f296b7aa7930/go.mod h1:rhFAZHqDIUT4+VAObKtXasFOlOYTd53nvC/JmRRCNyk=
-github.com/mewkiz/flac v1.0.5 h1:dHGW/2kf+/KZ2GGqSVayNEhL9pluKn/rr/h/QqD9Ogc=
-github.com/mewkiz/flac v1.0.5/go.mod h1:EHZNU32dMF6alpurYyKHDLYpW1lYpBZ5WrXi/VuNIGs=
 github.com/mewkiz/pkg v0.0.0-20190222151137-b7948a1ad1b1 h1:Ytib0leH10tNoS0kWrEaPGk6ioIGSntEsOP+6h9oMgY=
 github.com/mewkiz/pkg v0.0.0-20190222151137-b7948a1ad1b1/go.mod h1:NefHmmDOyP6U1WiFFk+jFR3YdHoTeueo8nOZ6i1vZbA=
 github.com/pipelined/mock v0.0.0-20190217150724-87db8bf19cf0/go.mod h1:/1j1qKtUhE/iC8c+oM4QGbGAYOlgVji/Ux+XM+3sqes=

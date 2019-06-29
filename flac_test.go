@@ -15,7 +15,7 @@ var (
 	bufferSize  = 512
 	flacSamples = 330528
 	flacSample  = "_testdata/sample.flac"
-	wav1       = "_testdata/out1.wav"
+	wav1        = "_testdata/out1.wav"
 )
 
 func TestFlacPipe(t *testing.T) {

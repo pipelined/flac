@@ -5,7 +5,6 @@ import (
 
 	"github.com/mewkiz/flac"
 	"github.com/mewkiz/flac/frame"
-	"github.com/mewkiz/flac/meta"
 
 	"github.com/pipelined/signal"
 )
