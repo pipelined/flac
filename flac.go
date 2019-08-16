@@ -18,7 +18,7 @@ type (
 )
 
 // Pump starts the pump process once executed, wav attributes are accessible.
-func (p *Pump) Pump(sourceID string, bufferSize int) (func() ([][]float64, error), int, int, error) {
+func (p *Pump) Pump(sourceID string) (func(bufferSize int) ([][]float64, error), int, int, error) {
 	decoder, err := flac.New(p)
 	if err != nil {
 		return nil, 0, 0, err
@@ -29,18 +29,24 @@ func (p *Pump) Pump(sourceID string, bufferSize int) (func() ([][]float64, error
 
 	// frames needs to be known between calls
 	var (
-		f   *frame.Frame
-		pos int
+		frame             *frame.Frame
+		pos               int // position in frame
+		ints              []int
+		currentBufferSize int
 	)
-	// allocate buffer
-	intBuf := make([]int, numChannels*bufferSize)
-	return func() ([][]float64, error) {
-		var err error
-		var read int
-		for read < len(intBuf) {
+	return func(bufferSize int) ([][]float64, error) {
+		if currentBufferSize != bufferSize {
+			currentBufferSize = bufferSize
+			ints = make([]int, numChannels*bufferSize)
+		}
+		var (
+			err  error
+			read int
+		)
+		for read < len(ints) {
 			// read next frame if current is finished
-			if f == nil {
-				if f, err = p.d.ParseNext(); err != nil {
+			if frame == nil {
+				if frame, err = p.d.ParseNext(); err != nil {
 					if err == io.EOF {
 						break // no more bytes available
 					} else {
@@ -51,14 +57,14 @@ func (p *Pump) Pump(sourceID string, bufferSize int) (func() ([][]float64, error
 			}
 
 			// read samples
-			for pos < int(f.BlockSize) {
-				for _, s := range f.Subframes {
-					intBuf[read] = int(s.Samples[pos])
+			for pos < int(frame.BlockSize) {
+				for _, s := range frame.Subframes {
+					ints[read] = int(s.Samples[pos])
 					read++
 				}
 				pos++
 			}
-			f = nil
+			frame = nil
 		}
 		// nothing was read
 		if read == 0 {
@@ -67,7 +73,7 @@ func (p *Pump) Pump(sourceID string, bufferSize int) (func() ([][]float64, error
 
 		// trim and convert the buffer
 		b := signal.InterInt{
-			Data:        intBuf[:read],
+			Data:        ints[:read],
 			NumChannels: numChannels,
 			BitDepth:    bitDepth,
 		}.AsFloat64()
@@ -78,4 +84,9 @@ func (p *Pump) Pump(sourceID string, bufferSize int) (func() ([][]float64, error
 
 		return b, nil
 	}, sampleRate, numChannels, nil
+}
+
+// Flush closes flac decoder.
+func (p *Pump) Flush() error {
+	return p.d.Close()
 }
