@@ -14,7 +14,7 @@ type (
 	// Pump reads flac data from ReadSeeker.
 	Pump struct {
 		io.Reader
-		d *flac.Stream
+		decoder *flac.Stream
 	}
 )
 
@@ -24,7 +24,7 @@ func (p *Pump) Pump(sourceID string) (func(b signal.Float64) error, signal.Sampl
 	if err != nil {
 		return nil, 0, 0, fmt.Errorf("error creating flac decoder: %w", err)
 	}
-	p.d = decoder
+	p.decoder = decoder
 
 	sampleRate := signal.SampleRate(decoder.Info.SampleRate)
 	numChannels := int(decoder.Info.NChannels)
@@ -49,7 +49,7 @@ func (p *Pump) Pump(sourceID string) (func(b signal.Float64) error, signal.Sampl
 		for read < len(ints.Data) {
 			// read next frame if current is finished
 			if frame == nil {
-				if frame, err = p.d.ParseNext(); err != nil {
+				if frame, err = p.decoder.ParseNext(); err != nil {
 					if err == io.EOF {
 						break // no more bytes available
 					} else {
@@ -90,5 +90,5 @@ func (p *Pump) Pump(sourceID string) (func(b signal.Float64) error, signal.Sampl
 
 // Flush closes flac decoder.
 func (p *Pump) Flush() error {
-	return p.d.Close()
+	return p.decoder.Close()
 }
