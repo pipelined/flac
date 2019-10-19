@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/pipelined/flac"
+	"github.com/pipelined/signal"
 	"github.com/pipelined/wav"
 
 	"github.com/stretchr/testify/assert"
@@ -50,17 +51,20 @@ func TestFlacPipe(t *testing.T) {
 		assert.NotNil(t, sinkFn)
 		assert.Nil(t, err)
 
-		var buf [][]float64
+		buf := signal.Float64Buffer(numChannles, bufferSize)
 		messages, samples := 0, 0
-		for err == nil {
-			buf, err = pumpFn(bufferSize)
+		for {
+			err = pumpFn(buf)
+			if err != nil {
+				break
+			}
 			_ = sinkFn(buf)
 			messages++
 			if buf != nil {
 				samples += len(buf[0])
 			}
 		}
-		assert.Equal(t, io.ErrUnexpectedEOF, err)
+		assert.Equal(t, io.EOF, err)
 
 		// assert.Equal(t, wavMessages, messages)
 		assert.Equal(t, flacSamples, samples)
