@@ -1,5 +1,5 @@
 language: go
-go: 
+go:
  - "1.x"
 
 os: osx
@@ -8,7 +8,6 @@ install: true
 
 env:
   global:
-    - GO111MODULE=on
     - CODECOV_TOKEN="936d7a17-608c-4d39-8ce2-2e6d20b93757"
 
 script: go test -race -coverprofile=coverage.txt -covermode=atomic ./...
