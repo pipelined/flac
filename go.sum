@@ -30,14 +30,8 @@ github.com/mewkiz/flac v1.0.5-0.20190222151344-f296b7aa7930 h1:f2MmBr0MM68hWzpJT
 github.com/mewkiz/flac v1.0.5-0.20190222151344-f296b7aa7930/go.mod h1:rhFAZHqDIUT4+VAObKtXasFOlOYTd53nvC/JmRRCNyk=
 github.com/mewkiz/pkg v0.0.0-20190222151137-b7948a1ad1b1 h1:Ytib0leH10tNoS0kWrEaPGk6ioIGSntEsOP+6h9oMgY=
 github.com/mewkiz/pkg v0.0.0-20190222151137-b7948a1ad1b1/go.mod h1:NefHmmDOyP6U1WiFFk+jFR3YdHoTeueo8nOZ6i1vZbA=
-github.com/mewkiz/pkg v0.0.0-20190317153131-e8616647c365 h1:WeayHgdK3Mh6RMZKtcJaaRMjGvJeRdn+e+QqO50us84=
-github.com/mewkiz/pkg v0.0.0-20190317153131-e8616647c365/go.mod h1:NefHmmDOyP6U1WiFFk+jFR3YdHoTeueo8nOZ6i1vZbA=
 github.com/mewkiz/pkg v0.0.0-20190919212034-518ade7978e2 h1:EyTNMdePWaoWsRSGQnXiSoQu0r6RS1eA557AwJhlzHU=
 github.com/mewkiz/pkg v0.0.0-20190919212034-518ade7978e2/go.mod h1:3E2FUC/qYUfM8+r9zAwpeHJzqRVVMIYnpzD/clwWxyA=
-github.com/pipelined/signal v0.1.0 h1:3UKsuDT/Gl1gFCeik59+28jpBC7ZVRIOJTV8p0SjvNQ=
-github.com/pipelined/signal v0.1.0/go.mod h1:2hObqg30KY6FBiLwiO5kvSui/3C2XWCks06RD/A1m7I=
-github.com/pipelined/wav v0.2.0 h1:hexlh4XzuzV2VRFaPO63zWTb8PG0Qs8f1s9dN7x+kLU=
-github.com/pipelined/wav v0.2.0/go.mod h1:cMkPmUlt2lWExtvmFN+c4BwZFYgeHWcEQh/nMl5D7Zs=
 github.com/pkg/errors v0.8.1 h1:iURUrRGxPUNPdy5/HRSm+Yj6okJ6UtLINN0Q9M4+h3I=
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=

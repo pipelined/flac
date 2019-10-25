@@ -22,7 +22,7 @@ type (
 func (p *Pump) Pump(sourceID string) (func(b signal.Float64) error, signal.SampleRate, int, error) {
 	decoder, err := flac.New(p.Reader)
 	if err != nil {
-		return nil, 0, 0, fmt.Errorf("error creating flac decoder: %w", err)
+		return nil, 0, 0, fmt.Errorf("error creating FLAC decoder: %w", err)
 	}
 	p.decoder = decoder
 
