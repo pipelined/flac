@@ -32,6 +32,10 @@ github.com/mewkiz/pkg v0.0.0-20190222151137-b7948a1ad1b1 h1:Ytib0leH10tNoS0kWrEa
 github.com/mewkiz/pkg v0.0.0-20190222151137-b7948a1ad1b1/go.mod h1:NefHmmDOyP6U1WiFFk+jFR3YdHoTeueo8nOZ6i1vZbA=
 github.com/mewkiz/pkg v0.0.0-20190919212034-518ade7978e2 h1:EyTNMdePWaoWsRSGQnXiSoQu0r6RS1eA557AwJhlzHU=
 github.com/mewkiz/pkg v0.0.0-20190919212034-518ade7978e2/go.mod h1:3E2FUC/qYUfM8+r9zAwpeHJzqRVVMIYnpzD/clwWxyA=
+github.com/pipelined/signal v0.4.0 h1:n+GDZ6EIO988YDEJ3EmZKUB3WPBdU28zthW8gszOb/A=
+github.com/pipelined/signal v0.4.0/go.mod h1:fbzWudlb7qHW4YQ61Y3qzIDI41rJnxNlcjUeTGNukh8=
+github.com/pipelined/wav v0.3.0 h1:DhCMqGyoFDBWR0dcun8bdRyUT9l1C3Ng1CkgKf+UWx8=
+github.com/pipelined/wav v0.3.0/go.mod h1:Kw8HwWAZEsbqA9C52DLYqe3ZLZ776m9bJyKl+FDWeQA=
 github.com/pkg/errors v0.8.1 h1:iURUrRGxPUNPdy5/HRSm+Yj6okJ6UtLINN0Q9M4+h3I=
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
