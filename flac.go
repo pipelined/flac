@@ -7,7 +7,7 @@ import (
 	"github.com/mewkiz/flac"
 	"github.com/mewkiz/flac/frame"
 
-	"github.com/pipelined/signal"
+	"pipelined.dev/signal"
 )
 
 type (
@@ -18,7 +18,7 @@ type (
 	}
 )
 
-// Pump starts the pump process once executed, wav attributes are accessible.
+// Pump starts the pump stage.
 func (p *Pump) Pump(sourceID string) (func(b signal.Float64) error, signal.SampleRate, int, error) {
 	decoder, err := flac.New(p.Reader)
 	if err != nil {
