@@ -1,12 +1,14 @@
 package flac
 
 import (
+	"context"
 	"fmt"
 	"io"
 
 	"github.com/mewkiz/flac"
 	"github.com/mewkiz/flac/frame"
 
+	"pipelined.dev/pipe"
 	"pipelined.dev/signal"
 )
 
@@ -19,76 +21,69 @@ type (
 )
 
 // Pump starts the pump stage.
-func (p *Pump) Pump(sourceID string) (func(b signal.Float64) error, signal.SampleRate, int, error) {
-	decoder, err := flac.New(p.Reader)
-	if err != nil {
-		return nil, 0, 0, fmt.Errorf("error creating FLAC decoder: %w", err)
-	}
-	p.decoder = decoder
-
-	sampleRate := signal.SampleRate(decoder.Info.SampleRate)
-	numChannels := int(decoder.Info.NChannels)
-	bitDepth := signal.BitDepth(decoder.Info.BitsPerSample)
-
-	// frames needs to be known between calls
-	var (
-		frame *frame.Frame
-		pos   int // position in frame
-	)
-	ints := signal.InterInt{
-		NumChannels: numChannels,
-		BitDepth:    bitDepth,
-	}
-	return func(b signal.Float64) error {
-		if ints.Size() != b.Size() {
-			ints.Data = make([]int, numChannels*b.Size())
+func (p *Pump) Pump() pipe.SourceAllocatorFunc {
+	return func(bufferSize int) (pipe.Source, pipe.SignalProperties, error) {
+		decoder, err := flac.New(p.Reader)
+		if err != nil {
+			return pipe.Source{}, pipe.SignalProperties{}, fmt.Errorf("error creating FLAC decoder: %w", err)
 		}
+		p.decoder = decoder
+		channels := int(decoder.Info.NChannels)
 		var (
-			read int
+			frame *frame.Frame // frames needs to be known between calls
+			pos   int          // position of last read sample within frame
 		)
-		for read < len(ints.Data) {
-			// read next frame if current is finished
-			if frame == nil {
-				if frame, err = p.decoder.ParseNext(); err != nil {
-					if err == io.EOF {
-						break // no more bytes available
-					} else {
-						return fmt.Errorf("error reading FLAC frame: %w", err)
+		ints := signal.Allocator{
+			Channels: channels,
+			Length:   bufferSize,
+			Capacity: bufferSize,
+		}.Int32(signal.BitDepth(decoder.Info.BitsPerSample))
+		return pipe.Source{
+				SourceFunc: func(floats signal.Floating) (int, error) {
+					var read int
+				outer:
+					for {
+						if frame == nil {
+							if frame, err = p.decoder.ParseNext(); err != nil {
+								if err == io.EOF {
+									break // no more bytes available
+								} else {
+									return 0, fmt.Errorf("error reading FLAC frame: %w", err)
+								}
+							}
+						}
+
+						for pos < int(frame.BlockSize) {
+							if read == ints.Len() {
+								break outer
+							}
+							for sf := range frame.Subframes {
+								ints.SetSample(read, int64(frame.Subframes[sf].Samples[pos]))
+								read++
+							}
+							pos++
+						}
+						frame = nil
+						pos = 0
 					}
-				}
-				pos = 0
-			}
-
-			// read samples
-			for pos < int(frame.BlockSize) {
-				for _, s := range frame.Subframes {
-					ints.Data[read] = int(s.Samples[pos])
-					read++
-				}
-				pos++
-			}
-			frame = nil
-		}
-		if read == 0 {
-			return io.EOF
-		}
-
-		// trim buffer.
-		if read != len(ints.Data) {
-			ints.Data = ints.Data[:read]
-			for i := range b {
-				b[i] = b[i][:ints.Size()]
-			}
-		}
-
-		// copy to the output.
-		ints.CopyToFloat64(b)
-
-		return nil
-	}, sampleRate, numChannels, nil
+					if read == 0 {
+						return 0, io.EOF
+					}
+					if read != ints.Len() {
+						return signal.SignedAsFloating(ints.Slice(0, signal.ChannelLength(read, ints.Channels())), floats), nil
+					}
+					return signal.SignedAsFloating(ints, floats), nil
+				},
+				FlushFunc: p.flush,
+			},
+			pipe.SignalProperties{
+				SampleRate: signal.SampleRate(decoder.Info.SampleRate),
+				Channels:   channels,
+			}, nil
+	}
 }
 
 // Flush closes flac decoder.
-func (p *Pump) Flush() error {
+func (p *Pump) flush(context.Context) error {
 	return p.decoder.Close()
 }
