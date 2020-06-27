@@ -25,14 +25,14 @@ func TestFlacPipe(t *testing.T) {
 	in, _ := os.Open(inputFile)
 	outFile, _ := os.Create(outputFile)
 
-	source := flac.Pump{Reader: in}
+	source := flac.Source{Reader: in}
 	processor := &mock.Processor{}
 	sink := wav.Sink{
 		WriteSeeker: outFile,
 		BitDepth:    signal.BitDepth16,
 	}
 	line, err := pipe.Routing{
-		Source:     source.Pump(),
+		Source:     source.Source(),
 		Processors: pipe.Processors(processor.Processor()),
 		Sink:       sink.Sink(),
 	}.Line(bufferSize)
