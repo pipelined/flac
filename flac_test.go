@@ -15,7 +15,7 @@ import (
 
 const (
 	channels   = 2
-	bufferSize = 320
+	bufferSize = 322
 	samples    = 330528
 	inputFile  = "_testdata/sample.flac"
 	outputFile = "_testdata/out.wav"
