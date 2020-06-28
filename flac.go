@@ -1,94 +1,105 @@
 package flac
 
 import (
+	"context"
 	"fmt"
 	"io"
 
 	"github.com/mewkiz/flac"
 	"github.com/mewkiz/flac/frame"
 
+	"pipelined.dev/pipe"
 	"pipelined.dev/signal"
 )
 
-type (
-	// Pump reads flac data from ReadSeeker.
-	Pump struct {
-		io.Reader
-		decoder *flac.Stream
-	}
-)
+// Source decodes PCM from flac data io.Reader.
+type Source struct {
+	io.Reader
+	decoder *flac.Stream
+	state   *readState
+	ints    signal.Signed
+}
 
-// Pump starts the pump stage.
-func (p *Pump) Pump(sourceID string) (func(b signal.Float64) error, signal.SampleRate, int, error) {
-	decoder, err := flac.New(p.Reader)
+// Source returns new Source allocator function.
+func (s Source) Source() pipe.SourceAllocatorFunc {
+	return s.allocator
+}
+
+func (s Source) allocator(bufferSize int) (pipe.Source, pipe.SignalProperties, error) {
+	decoder, err := flac.New(s.Reader)
 	if err != nil {
-		return nil, 0, 0, fmt.Errorf("error creating FLAC decoder: %w", err)
+		return pipe.Source{}, pipe.SignalProperties{}, fmt.Errorf("error creating FLAC decoder: %w", err)
 	}
-	p.decoder = decoder
+	s.decoder = decoder
+	s.ints = signal.Allocator{
+		Channels: int(decoder.Info.NChannels),
+		Length:   bufferSize,
+		Capacity: bufferSize,
+	}.Int32(signal.BitDepth(decoder.Info.BitsPerSample))
+	s.state = &readState{}
+	return pipe.Source{
+			SourceFunc: s.source,
+			FlushFunc:  s.flush,
+		},
+		pipe.SignalProperties{
+			SampleRate: signal.SampleRate(decoder.Info.SampleRate),
+			Channels:   int(decoder.Info.NChannels),
+		}, nil
+}
 
-	sampleRate := signal.SampleRate(decoder.Info.SampleRate)
-	numChannels := int(decoder.Info.NChannels)
-	bitDepth := signal.BitDepth(decoder.Info.BitsPerSample)
+func (s Source) source(floats signal.Floating) (int, error) {
+	read := 0
+	for read < s.ints.Len() {
+		if err := s.state.nextFrame(s.decoder); err != nil {
+			if err == io.EOF {
+				break
+			}
+			return 0, fmt.Errorf("error reading FLAC frame: %w", err)
+		}
 
-	// frames needs to be known between calls
-	var (
-		frame *frame.Frame
-		pos   int // position in frame
-	)
-	ints := signal.InterInt{
-		NumChannels: numChannels,
-		BitDepth:    bitDepth,
+		read = s.state.readFrame(s.ints, read)
 	}
-	return func(b signal.Float64) error {
-		if ints.Size() != b.Size() {
-			ints.Data = make([]int, numChannels*b.Size())
-		}
-		var (
-			read int
-		)
-		for read < len(ints.Data) {
-			// read next frame if current is finished
-			if frame == nil {
-				if frame, err = p.decoder.ParseNext(); err != nil {
-					if err == io.EOF {
-						break // no more bytes available
-					} else {
-						return fmt.Errorf("error reading FLAC frame: %w", err)
-					}
-				}
-				pos = 0
-			}
-
-			// read samples
-			for pos < int(frame.BlockSize) {
-				for _, s := range frame.Subframes {
-					ints.Data[read] = int(s.Samples[pos])
-					read++
-				}
-				pos++
-			}
-			frame = nil
-		}
-		if read == 0 {
-			return io.EOF
-		}
-
-		// trim buffer.
-		if read != len(ints.Data) {
-			ints.Data = ints.Data[:read]
-			for i := range b {
-				b[i] = b[i][:ints.Size()]
-			}
-		}
-
-		// copy to the output.
-		ints.CopyToFloat64(b)
-
-		return nil
-	}, sampleRate, numChannels, nil
+	if read == 0 {
+		return 0, io.EOF
+	}
+	if read != s.ints.Len() {
+		return signal.SignedAsFloating(s.ints.Slice(0, signal.ChannelLength(read, s.ints.Channels())), floats), nil
+	}
+	return signal.SignedAsFloating(s.ints, floats), nil
 }
 
 // Flush closes flac decoder.
-func (p *Pump) Flush() error {
-	return p.decoder.Close()
+func (s Source) flush(context.Context) error {
+	return s.decoder.Close()
+}
+
+type readState struct {
+	*frame.Frame
+	pos int
+}
+
+func (state *readState) nextFrame(stream *flac.Stream) error {
+	if state.Frame == nil || state.pos == int(state.Frame.BlockSize) {
+		f, err := stream.ParseNext()
+		if err != nil {
+			return err
+		}
+		state.Frame = f
+		state.pos = 0
+	}
+	return nil
+}
+
+func (state *readState) readFrame(ints signal.Signed, read int) int {
+	for state.pos < int(state.Frame.BlockSize) {
+		if read == ints.Len() {
+			break
+		}
+		for sf := range state.Frame.Subframes {
+			ints.SetSample(read, int64(state.Frame.Subframes[sf].Samples[state.pos]))
+			read++
+		}
+		state.pos++
+	}
+	return read
 }
