@@ -7,7 +7,6 @@ import (
 
 	"github.com/mewkiz/flac"
 	"github.com/mewkiz/flac/frame"
-
 	"pipelined.dev/pipe"
 	"pipelined.dev/signal"
 )

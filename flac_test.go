@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"pipelined.dev/flac"
+	"pipelined.dev/audio/flac"
 	"pipelined.dev/pipe"
 	"pipelined.dev/pipe/mock"
 )
