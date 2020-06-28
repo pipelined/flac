@@ -1,4 +1,4 @@
-module pipelined.dev/flac
+module pipelined.dev/audio/flac
 
 go 1.13
 
