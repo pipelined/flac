@@ -68,7 +68,7 @@ func source(decoder *flac.Stream, ints signal.Signed) pipe.SourceFunc {
 func decoderFlusher(decoder *flac.Stream) pipe.FlushFunc {
 	return func(context.Context) error {
 		if err := decoder.Close(); err != nil {
-			return fmt.Errorf("error flushing WAV encoder: %w", err)
+			return fmt.Errorf("error flushing FLAC encoder: %w", err)
 		}
 		return nil
 	}
