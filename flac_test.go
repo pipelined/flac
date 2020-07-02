@@ -20,6 +20,7 @@ const (
 
 func TestFlacPipe(t *testing.T) {
 	in, _ := os.Open(inputFile)
+	defer in.Close()
 
 	source := flac.Source{Reader: in}
 	sink := mock.Sink{}
