@@ -22,10 +22,9 @@ func TestFlacPipe(t *testing.T) {
 	in, _ := os.Open(inputFile)
 	defer in.Close()
 
-	source := flac.Source{Reader: in}
 	sink := mock.Sink{}
 	line, err := pipe.Routing{
-		Source: source.Source(),
+		Source: flac.Source(in),
 		Sink:   sink.Sink(),
 	}.Line(bufferSize)
 
