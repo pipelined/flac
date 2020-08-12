@@ -11,15 +11,11 @@ import (
 	"pipelined.dev/signal"
 )
 
-// Source decodes PCM from flac data io.Reader.
-type Source struct {
-	io.Reader
-}
-
-// Source returns new Source allocator function.
-func (s Source) Source() pipe.SourceAllocatorFunc {
+// Source decodes PCM from flac data io.Reader. Source returns new Source
+// allocator function.
+func Source(r io.Reader) pipe.SourceAllocatorFunc {
 	return func(bufferSize int) (pipe.Source, pipe.SignalProperties, error) {
-		decoder, err := flac.New(s.Reader)
+		decoder, err := flac.New(r)
 		if err != nil {
 			return pipe.Source{}, pipe.SignalProperties{}, fmt.Errorf("error creating FLAC decoder: %w", err)
 		}
