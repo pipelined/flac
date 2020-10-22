@@ -23,13 +23,14 @@ func TestFlacPipe(t *testing.T) {
 	defer in.Close()
 
 	sink := mock.Sink{}
-	line, err := pipe.Routing{
-		Source: flac.Source(in),
-		Sink:   sink.Sink(),
-	}.Line(bufferSize)
-
-	p := pipe.New(context.Background(), pipe.WithLines(line))
-	err = p.Wait()
+	p, err := pipe.New(bufferSize,
+		pipe.Routing{
+			Source: flac.Source(in),
+			Sink:   sink.Sink(),
+		},
+	)
+	assertEqual(t, "pipe err", err, nil)
+	err = p.Async(context.Background()).Await()
 	assertEqual(t, "wait err", err, nil)
 	assertEqual(t, "samples", sink.Samples, samples)
 
