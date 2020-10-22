@@ -8,16 +8,17 @@ import (
 	"github.com/mewkiz/flac"
 	"github.com/mewkiz/flac/frame"
 	"pipelined.dev/pipe"
+	"pipelined.dev/pipe/mutable"
 	"pipelined.dev/signal"
 )
 
 // Source decodes PCM from flac data io.Reader. Source returns new Source
 // allocator function.
 func Source(r io.Reader) pipe.SourceAllocatorFunc {
-	return func(bufferSize int) (pipe.Source, pipe.SignalProperties, error) {
+	return func(mctx mutable.Context, bufferSize int) (pipe.Source, error) {
 		decoder, err := flac.New(r)
 		if err != nil {
-			return pipe.Source{}, pipe.SignalProperties{}, fmt.Errorf("error creating FLAC decoder: %w", err)
+			return pipe.Source{}, fmt.Errorf("error creating FLAC decoder: %w", err)
 		}
 		ints := signal.Allocator{
 			Channels: int(decoder.Info.NChannels),
@@ -28,11 +29,12 @@ func Source(r io.Reader) pipe.SourceAllocatorFunc {
 		return pipe.Source{
 				SourceFunc: source(decoder, ints),
 				FlushFunc:  decoderFlusher(decoder),
+				Output: pipe.SignalProperties{
+					SampleRate: signal.Frequency(decoder.Info.SampleRate),
+					Channels:   int(decoder.Info.NChannels),
+				},
 			},
-			pipe.SignalProperties{
-				SampleRate: signal.SampleRate(decoder.Info.SampleRate),
-				Channels:   int(decoder.Info.NChannels),
-			}, nil
+			nil
 	}
 }
 
