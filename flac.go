@@ -29,7 +29,7 @@ func Source(r io.Reader) pipe.SourceAllocatorFunc {
 		return pipe.Source{
 				SourceFunc: source(decoder, ints),
 				FlushFunc:  decoderFlusher(decoder),
-				Output: pipe.SignalProperties{
+				SignalProperties: pipe.SignalProperties{
 					SampleRate: signal.Frequency(decoder.Info.SampleRate),
 					Channels:   int(decoder.Info.NChannels),
 				},
